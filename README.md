@@ -1,1 +1,1 @@
-# altarix
+# Altarix - Usov Alex
