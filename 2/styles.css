@@ -1,0 +1,137 @@
+@import url('common.css');
+
+
+.wrap{    
+    display: flex;
+    flex-direction: column;
+    flex: auto;
+}
+.top{
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    justify-content: space-between;
+    overflow: hidden;
+    padding: 10px 0px;
+    margin: 0 0 30px 0;
+}
+
+.logo {
+    position: relative;
+    height: 30px;
+    flex-grow: 2;
+    min-width: 1px ;
+}
+.logo:after{
+    content:'';
+    position: absolute;
+    left: 80px;
+    top: 0px;
+    width: 90px;
+    height: 30px;
+}
+.logo:before{
+    content:'';
+    position: absolute;
+    left: 20px;
+    top: -10px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+}
+
+.item{
+    display: flex;
+    flex-wrap: wrap;
+    flex-grow: 3;
+}
+
+.list {
+    flex:  auto;
+    height: 50px;
+    margin-left: 1%;
+    justify-content: center;
+    align-items: center;
+}
+
+
+
+
+
+.main{
+    display: flex;
+    flex-wrap: nowrap;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: flex-start;
+}
+
+.m-text{    
+    min-width: 1px;
+    min-height: 1px;
+    flex: 5;
+    font-size: 20px;
+    font-style: italic;
+    line-height: 1.5em;
+    margin-right: 10%;
+}
+.m-text-title {
+    font-size: 28px;
+}
+.m-image{
+    flex: 4;
+    min-width: 1px;
+    min-height: 360px;
+}
+
+
+
+
+
+
+.content{
+    margin: 40px 0 0;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.c-block, .c-article, .c-comment{
+    flex:1;
+}
+
+
+.b-list{
+    min-height: 200px;
+    margin: 0 0 30px 0;
+}
+
+.c-article{
+    font-size: 14px;
+    margin: 0 0 0 4%;
+}
+
+.a-list{
+    margin: 0 0 30px 0;
+    line-height: 1.5em;
+}
+
+.c-comment{
+    font-size: 14px;
+    margin: 0 0 0 4%;
+}
+
+.c-list{
+    overflow: hidden;
+    margin: 0 0 30px 0;
+    line-height: 1.5em;
+}
+
+.ava{
+    float: left;
+    width: 50px;
+    height: 50px;
+}
+
+.text{
+    margin-left: 70px;
+}
