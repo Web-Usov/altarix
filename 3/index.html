@@ -3,10 +3,72 @@
 <head>
 	<meta charset="UTF-8">
 	<title>Task 3</title>
-
+	<style>
+		input{
+			color:#aaa;
+		}
+		input:focus,input:disabled{
+			color:#000;
+		}
+		ul li {
+			list-style: none;
+		}
+		button{
+			display: block;
+		}
+		.Calendar-table{
+			display: table;
+		}
+	</style>
 </head>
 <body>
-	<h1 style="font-size: 60px; text-align: center">Look at the console</h1>
+
+	<section class="Calc">
+		<h1>Form with calculator</h1>
+		<form action="" id="CalcForm">
+			<ul>
+				<li><input type="number" id="Calc_a" placeholder="Nomber 1"></li>
+				<li><input type="text" id="Calc_b" placeholder="+,-,*,/"></li>
+				<li><input type="number" id="Calc_c" placeholder="Nomber 2"></li>
+				<li><button id="Calc_btn" type="submit">Send</button></li>
+				<li><span>Answer: </span><input type="text" id="Calc_out" disabled></li>
+			</ul>
+		</form>
+	</section>
+
+	<section class="Search">
+		<h1>Finding a String in an Array</h1>
+		<form action="" id="SearchForm">
+			<textarea name="" id="Search_area" cols="30" rows="10"></textarea>
+			<ul>
+				<li><input type="text" id="Search_in" placeholder="String for search"></li>
+				<li><button id="Search_btn" type="submit">Send</button></li>
+				<li><span>Match strings: </span><input type="text" id="Search_out" disabled></li>
+			</ul>
+		</form>
+	</section>
+
+	<section class="Convert">
+		<h1>Convert number</h1>
+		<form action="" id="ConvertForm">
+			<ul>
+				<li><input type="number" id="Convert_in" placeholder="Number"></li>
+				<li><button id="Convert_btn" type="submit">Send</button></li>
+				<li><span>Answer: </span><input type="text" id="Convert_out" disabled></li>
+			</ul>
+		</form>
+	</section>
+
+	<section class="Calendar">
+		<h1>Calendar</h1>
+		<form action="" id="CalendarForm">
+			<input type="date" id="Calendar_date">
+			<button type="submit">Send</button>
+			<table class="Calendar_table" id="Calendar_table">
+
+			</table>
+		</form>
+	</section>
 <script src="common.js"></script>
 </body>
 </html>

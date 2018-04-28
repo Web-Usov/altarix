@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Task 5</title>
+    <style>
+        .search{
+            width: 400px;
+            margin: 200px auto;
+            padding: 20px;
+            border: solid 2px #fa5;
+            border-radius: 18px;
+        }
+        .input{
+            width: 200px;
+            display: inline-block;
+            border: solid 2px #fa5;
+            padding: 5px 15px;
+            margin-bottom: 5px;
+            margin-top: 5px;
+            border-radius: 18px;
+        }
+        .btn{
+            display: inline-block;
+            float: right;
+            color: #000;
+            border: solid 2px #f45;
+            background-color: #fa5;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 18px;
+        }
+        .output{
+            margin-top: 10px;
+            display: block;
+            width: 100%;
+            border: solid 2px #fa5;
+            border-radius: 18px;
+            min-height: 50px;
+            max-height: 300px;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <section class="search">
+        <form action="" id="searchForm">
+            <input type="text" class="input" id="input" placeholder="Login...">
+            <button class="btn" id="btn" type="submit">Search</button>
+            <div class="output">
+                <ul>
+
+                </ul>
+            </div>
+        </form>
+    </section>
+
+    <script src="common.js"></script>
+</body>
+</html>
