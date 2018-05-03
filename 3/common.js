@@ -1,20 +1,3 @@
-
-
-
-try{
-
-
-    // strArray = ["Kit", "Nick", "Bob", "Alex"];
-    // log(strArray);
-    // str = "Ivan";
-    // log(str+" in array: "+StrInArray(strArray,str));
-    // str = "bob";
-    // log(str+" in array: "+StrInArray(strArray,str));
-    //
-    // log(ConvertNum(-13252523.46436));
-}catch(e) {
-}
-
 document.getElementById('CalcForm').onsubmit = function (e) {
     e.preventDefault();
     var a = Number(document.getElementById('Calc_a').value);
