@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import Ava from './img/chel.jpg';
 import './App.css';
 
-const HOSTID = 326;
+const HOSTID = Date.now();
 
 class User extends Component{
     constructor(_id,_name){
@@ -14,7 +14,6 @@ class User extends Component{
             msgs:[],
             ava : Ava,
         };
-        //User.list.push(this);
     }
     sendMsg(text){
         let msg ={
@@ -25,13 +24,9 @@ class User extends Component{
         let arr = this.state.msgs;
         arr.push(msg);
         this.setState({msgs:arr});
-        //Msgs.list.push(new Msgs(msg));
     }
     render(){
         return this;
-    }
-    get lastMsg() {
-        return this.state.msgs[this.state.msgs.length-1];
     }
 }
 class Msgs extends Component{
@@ -42,20 +37,11 @@ class Msgs extends Component{
             parentId:props.parentId,
             value: props.value
         };
-        //Msgs.list.push(this);
     }
     render(){
         return this;
     }
 }
-// User.list = [];
-// Msgs.list = [];
-// new User(HOSTID,"Ivan");
-// new User(123,"Oleg");
-//
-// User.list.find(x=>x.state.id===HOSTID).sendMsg("Hello, world! ");
-// User.list.find(x=>x.state.id===123).sendMsg("WTF?!");
-
 
 
 
@@ -64,7 +50,8 @@ class App extends Component {
         super();
         this.state = {
             USERS : [],
-            MSGS : []
+            MSGS : [],
+            HOST_USER: null
         };
         this.setMsg = this.setMsg.bind(this);
         this.addUser = this.addUser.bind(this);
@@ -89,22 +76,23 @@ class App extends Component {
         let buf = this.state.USERS;
         buf.push(user);
         this.setState({USERS:buf});
+        if(user.state.id===HOSTID){
+            this.setState({HOST_USER:user})
+        }
     }
 
     setMsg(msg){
-        let users = this.state.USERS;
-        let user = users.find(x=>x.state.id===HOSTID);
-        user.sendMsg(msg);
-        let buf = this.state.MSGS;
+        const parentUser = this.state.USERS.find(x=>x.state.id===msg.state.parentId);
+        parentUser.sendMsg(msg);
+        const buf = this.state.MSGS;
         buf.push(msg);
         this.setState({MSGS:buf});
     }
     render() {
-        console.log("render()");
         return (
             <div className="chat">
-                <ChatHeader users={this.state.USERS}/>
-                <ChatOutput users={this.state.USERS} msgs={this.state.MSGS}/>
+                <ChatHeader userName={this.state.HOST_USER.state.name}/>
+                <ChatOutput users={this.state.USERS} msgs={this.state.MSGS} hostUserId={this.state.HOST_USER.state.id}/>
                 <ChatFooter submitMsg={this.setMsg}/>
             </div>
         );
@@ -112,10 +100,9 @@ class App extends Component {
 }
 class ChatHeader extends Component{
     render(){
-        const hostName = this.props.users.find(x=>x.state.id===HOSTID).state.name;
         return(
             <header className="chat-header">
-                <h3 className="chat-header-title">{hostName}</h3>
+                <h3 className="chat-header-title">{this.props.userName}</h3>
             </header>
         )
     }
@@ -129,14 +116,17 @@ class ChatOutput extends Component{
         };
     }
     render(){
+        const users = this.state.users;
+        const hostId = this.props.hostUserId;
         return(
             <section className="chat-output">
                 <div className="chat-msg-list">
                     {
-                        this.state.msgs.map(msg => (
-
-                            <MsgV data={msg} user={this.state.users.find(x=>x.state.id===msg.state.parentId)}/>
-                        ))
+                        this.state.msgs.map(function (msg){
+                            const parentUser = users.find(x=>x.state.id===msg.state.parentId);
+                            return  <MsgV data={msg} user={parentUser} hostUserId={hostId}/>
+                            }
+                        )
                     }
                 </div>
             </section>
@@ -145,7 +135,7 @@ class ChatOutput extends Component{
 }
 const MsgV = function (props) {
     let position = "left";
-    if(props.data.state.parentId===HOSTID){
+    if(props.data.state.parentId===props.hostUserId){
         position = "right";
     }
     return(
@@ -172,7 +162,7 @@ class ChatFooter extends  Component{
             id:Date.now(),
             parentId:HOSTID,
             value:text
-        })
+        });
         this.props.submitMsg(msg);
     }
     render(){
