@@ -2,40 +2,42 @@ import React, { Component } from 'react';
 import Ava from './img/chel.jpg';
 import './App.css';
 
-const HOSTID = Date.now();
+import { db } from './firebase.js';
 
-class User extends Component{
-    constructor(_id,_name){
-        super();
-        this.state = {
+const HOST_NAME = "Ivan";
 
-            id : _id,
-            name : _name,
-            msgs:[],
-            ava : Ava,
-        };
-    }
-    sendMsg(text){
-        let msg ={
-            id : Date.now(),
-            value: text
-        };
-        msg.parentId = this.state.id;
-        let arr = this.state.msgs;
-        arr.push(msg);
-        this.setState({msgs:arr});
-    }
-    render(){
-        return this;
-    }
-}
+// class User extends Component{
+//     constructor(_id,_name){
+//         super();
+//         this.state = {
+//
+//             id : _id,
+//             name : _name,
+//             msgs:[],
+//             ava : Ava,
+//         };
+//     }
+//     sendMsg(text){
+//         let msg ={
+//             id : Date.now(),
+//             value: text
+//         };
+//         msg.parentId = this.state.id;
+//         let arr = this.state.msgs;
+//         arr.push(msg);
+//         this.setState({msgs:arr});
+//     }
+//     render(){
+//         return this;
+//     }
+// }
 class Msgs extends Component{
     constructor(props){
         super();
         this.state = {
             id : props.id,
-            parentId:props.parentId,
-            value: props.value
+            name:props.parentName,
+            text: props.value,
         };
     }
     render(){
@@ -49,51 +51,55 @@ class App extends Component {
     constructor(){
         super();
         this.state = {
-            USERS : [],
+            //USERS : [],
             MSGS : [],
-            HOST_USER: null
+            HOST_USER: HOST_NAME
         };
         this.setMsg = this.setMsg.bind(this);
-        this.addUser = this.addUser.bind(this);
+        //this.addUser = this.addUser.bind(this);
     }
-    componentWillMount(){
-        this.addUser(new User(HOSTID,"Ivan"));
-        this.addUser(new User(123,"Oleg"));
+    componentDidMount(){
+        const msgsRef = db.ref('messages');
+        let buf = [];
+        msgsRef.on('value',(snapshot) => {
+            const msgsFromServ = snapshot.val();
+            console.log(msgsFromServ);
+            Object.keys(msgsFromServ).map(function (key) {
+                const msg = new Msgs({
+                    id:msgsFromServ[key].id,
+                    value:msgsFromServ[key].text,
+                    parentName:msgsFromServ[key].name,
+                });
+                buf.push(msg);
+            });
+            this.setState({MSGS:buf});
+            console.log(this.state.MSGS);
+        });
 
-        this.setMsg(new Msgs({
-            id:Date.now(),
-            parentId:HOSTID,
-            value:"Hello, world!"
-        }));
-
-        this.setMsg(new Msgs({
-            id:Date.now(),
-            parentId:123,
-            value:"WTF?!"
-        }));
     }
-    addUser(user){
-        let buf = this.state.USERS;
-        buf.push(user);
-        this.setState({USERS:buf});
-        if(user.state.id===HOSTID){
-            this.setState({HOST_USER:user})
-        }
-    }
+    // addUser(user){
+    //     let buf = this.state.USERS;
+    //     buf.push(user);
+    //     this.setState({USERS:buf});
+    //     if(user.state.id===HOST_NAME){
+    //         this.setState({HOST_USER:user})
+    //     }
+    // }
 
     setMsg(msg){
-        const parentUser = this.state.USERS.find(x=>x.state.id===msg.state.parentId);
-        parentUser.sendMsg(msg);
-        const buf = this.state.MSGS;
-        buf.push(msg);
-        this.setState({MSGS:buf});
+        // const parentUser = this.state.USERS.find(x=>x.state.id===msg.state.parentId);
+        // parentUser.sendMsg(msg);
+        //const buf = this.state.MSGS;
+        //buf.push(msg);
+        //this.setState({MSGS:buf});
+        db.ref('messages/'+msg.state.id).set(msg.state);
     }
     render() {
         return (
             <div className="chat">
-                <ChatHeader userName={this.state.HOST_USER.state.name}/>
-                <ChatOutput users={this.state.USERS} msgs={this.state.MSGS} hostUserId={this.state.HOST_USER.state.id}/>
-                <ChatFooter submitMsg={this.setMsg}/>
+                <ChatHeader hostName={this.state.HOST_USER}/>
+                <ChatOutput msgs={this.state.MSGS} hostName={this.state.HOST_USER}/>
+                <ChatFooter submitMsg={this.setMsg} hostName={this.state.HOST_USER}/>
             </div>
         );
     }
@@ -102,29 +108,22 @@ class ChatHeader extends Component{
     render(){
         return(
             <header className="chat-header">
-                <h3 className="chat-header-title">{this.props.userName}</h3>
+                <h3 className="chat-header-title">{this.props.hostName}</h3>
             </header>
         )
     }
 }
 class ChatOutput extends Component{
-    constructor(props){
-        super(props);
-        this.state = {
-            msgs : this.props.msgs,
-            users : this.props.users,
-        };
-    }
     render(){
-        const users = this.state.users;
-        const hostId = this.props.hostUserId;
+        //const users = this.props.users;
+        const msgs = this.props.msgs;
+        const hostName = this.props.hostName;
         return(
             <section className="chat-output">
                 <div className="chat-msg-list">
                     {
-                        this.state.msgs.map(function (msg){
-                            const parentUser = users.find(x=>x.state.id===msg.state.parentId);
-                            return  <MsgV data={msg} user={parentUser} hostUserId={hostId}/>
+                        msgs.map(function (msg){
+                            return  <MsgV data={msg} hostName={hostName}/>
                             }
                         )
                     }
@@ -135,19 +134,19 @@ class ChatOutput extends Component{
 }
 const MsgV = function (props) {
     let position = "left";
-    if(props.data.state.parentId===props.hostUserId){
+    if(props.data.state.name===props.hostName){
         position = "right";
     }
     return(
         <div className={"chat-msg-"+position} id={props.data.state.id}>
             <div className="chat-msg-logo">
-                <img src={props.user.state.ava} alt=""/>
-                <span className="chat-msg-title">{props.user.state.name}</span>
+                <img src={Ava} alt=""/>
+                <span className="chat-msg-title">{props.data.state.name}</span>
             </div>
             <div className="chat-msg">
 
                 <div>
-                    {props.data.state.value}
+                    {props.data.state.text}
                 </div>
             </div>
         </div>
@@ -160,7 +159,7 @@ class ChatFooter extends  Component{
         this.refs.input.value = "";
         const msg = new Msgs({
             id:Date.now(),
-            parentId:HOSTID,
+            parentName:this.props.hostName,
             value:text
         });
         this.props.submitMsg(msg);
