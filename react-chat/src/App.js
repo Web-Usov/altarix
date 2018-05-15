@@ -1,36 +1,10 @@
 import React, { Component } from 'react';
 import Ava from './img/chel.jpg';
 import './App.css';
-
 import { db } from './firebase.js';
 
-const HOST_NAME = "Ivan";
+const HOST_NAME = "Усов Алексей";
 
-// class User extends Component{
-//     constructor(_id,_name){
-//         super();
-//         this.state = {
-//
-//             id : _id,
-//             name : _name,
-//             msgs:[],
-//             ava : Ava,
-//         };
-//     }
-//     sendMsg(text){
-//         let msg ={
-//             id : Date.now(),
-//             value: text
-//         };
-//         msg.parentId = this.state.id;
-//         let arr = this.state.msgs;
-//         arr.push(msg);
-//         this.setState({msgs:arr});
-//     }
-//     render(){
-//         return this;
-//     }
-// }
 class Msgs extends Component{
     constructor(props){
         super();
@@ -51,57 +25,79 @@ class App extends Component {
     constructor(){
         super();
         this.state = {
-            //USERS : [],
             MSGS : [],
-            HOST_USER: HOST_NAME
+            HOST_USER: HOST_NAME,
+            isLogin : false
         };
         this.setMsg = this.setMsg.bind(this);
-        //this.addUser = this.addUser.bind(this);
+        this.login = this.login.bind(this);
     }
     componentDidMount(){
         const msgsRef = db.ref('messages');
-        let buf = [];
         msgsRef.on('value',(snapshot) => {
             const msgsFromServ = snapshot.val();
-            console.log(msgsFromServ);
-            Object.keys(msgsFromServ).map(function (key) {
-                const msg = new Msgs({
-                    id:msgsFromServ[key].id,
-                    value:msgsFromServ[key].text,
-                    parentName:msgsFromServ[key].name,
+            if(msgsFromServ!==null){
+                let buf = [];
+                Object.keys(msgsFromServ).map(function (key) {
+                    const msg = new Msgs({
+                        id:msgsFromServ[key].id,
+                        value:msgsFromServ[key].text,
+                        parentName:msgsFromServ[key].name,
+                    });
+                    buf.push(msg);
                 });
-                buf.push(msg);
-            });
-            this.setState({MSGS:buf});
-            console.log(this.state.MSGS);
+                this.setState({MSGS:buf});
+            }else{
+                this.setState({MSGS:null});
+            }
         });
 
     }
-    // addUser(user){
-    //     let buf = this.state.USERS;
-    //     buf.push(user);
-    //     this.setState({USERS:buf});
-    //     if(user.state.id===HOST_NAME){
-    //         this.setState({HOST_USER:user})
-    //     }
-    // }
+    login(name){
+        this.setState({
+            HOST_USER:name,
+            isLogin:true
+        })
 
+    }
     setMsg(msg){
-        // const parentUser = this.state.USERS.find(x=>x.state.id===msg.state.parentId);
-        // parentUser.sendMsg(msg);
-        //const buf = this.state.MSGS;
-        //buf.push(msg);
-        //this.setState({MSGS:buf});
         db.ref('messages/'+msg.state.id).set(msg.state);
     }
     render() {
-        return (
-            <div className="chat">
-                <ChatHeader hostName={this.state.HOST_USER}/>
-                <ChatOutput msgs={this.state.MSGS} hostName={this.state.HOST_USER}/>
-                <ChatFooter submitMsg={this.setMsg} hostName={this.state.HOST_USER}/>
+        if(!this.state.isLogin){
+            return (
+                <div className="chat-login">
+                    <ChatLogin login={this.login}/>
+                </div>
+            )
+        }else{
+            return (
+                <div className="chat">
+                    <ChatHeader hostName={this.state.HOST_USER}/>
+                    <ChatOutput msgs={this.state.MSGS} hostName={this.state.HOST_USER}/>
+                    <ChatFooter submitMsg={this.setMsg} hostName={this.state.HOST_USER}/>
+                </div>
+            )
+
+        }
+    }
+}
+class ChatLogin extends  Component{
+    login(e){
+        e.preventDefault();
+        const text = this.refs.input_login.value;
+        this.props.login(text);
+        this.refs.input_login.value = "";
+    }
+    render(){
+        return(
+            <div className="login">
+                <form onSubmit={this.login.bind(this)}>
+                    <input type="text" ref="input_login" id="login-input" className="login-input" placeholder="Input name..."/>
+                    <button className="login-btn" id="login-btn" type="submit" >Send</button>
+                </form>
             </div>
-        );
+        )
     }
 }
 class ChatHeader extends Component{
@@ -114,22 +110,41 @@ class ChatHeader extends Component{
     }
 }
 class ChatOutput extends Component{
+    componentDidUpdate(){
+        const chat_msg_list = document.getElementById('chat-msg-list');
+        if(chat_msg_list!==null){
+            chat_msg_list.scrollTop = chat_msg_list.scrollHeight;
+        }
+    }
+    componentWillUpdate(){
+        const chat_msg_list = document.getElementById('chat-msg-list');
+        if(chat_msg_list!==null){
+            chat_msg_list.scrollTop = chat_msg_list.scrollHeight;
+        }
+
+    }
     render(){
-        //const users = this.props.users;
-        const msgs = this.props.msgs;
         const hostName = this.props.hostName;
-        return(
-            <section className="chat-output">
-                <div className="chat-msg-list">
-                    {
-                        msgs.map(function (msg){
-                            return  <MsgV data={msg} hostName={hostName}/>
-                            }
-                        )
-                    }
-                </div>
-            </section>
-        )
+        if(this.props.msgs!==null){
+            return(
+                <section className="chat-output">
+                    <div className="chat-msg-list" id="chat-msg-list">
+                        {
+                            this.props.msgs.map(function (msg){
+                                return <MsgV data={msg} hostName={hostName} key={msg.state.id}/>
+                            })
+                        }
+                    </div>
+                </section>
+            )
+        }else{
+            return(
+                <section className="chat-output">
+                    <h1 style={{color:'orange',textAlign:'center',display:'block'}}>Сообщений нет :(</h1>
+                </section>
+
+            )
+        }
     }
 }
 const MsgV = function (props) {
@@ -138,7 +153,7 @@ const MsgV = function (props) {
         position = "right";
     }
     return(
-        <div className={"chat-msg-"+position} id={props.data.state.id}>
+        <div className={"chat-msg-"+position}  id={props.data.state.id}>
             <div className="chat-msg-logo">
                 <img src={Ava} alt=""/>
                 <span className="chat-msg-title">{props.data.state.name}</span>
@@ -155,8 +170,8 @@ const MsgV = function (props) {
 class ChatFooter extends  Component{
     sendMsg(e){
         e.preventDefault();
-        const text = this.refs.input.value;
-        this.refs.input.value = "";
+        const text = this.refs.input_msg.value;
+        this.refs.input_msg.value = "";
         const msg = new Msgs({
             id:Date.now(),
             parentName:this.props.hostName,
@@ -169,7 +184,7 @@ class ChatFooter extends  Component{
             <footer className="chat-footer">
                 <form className="chat-form" onSubmit={this.sendMsg.bind(this)}>
                     <div className="chat-input-box">
-                        <input type="text" ref="input" name="chat-input" id="chat-input" className="chat-input" placeholder="Input message..."/>
+                        <input type="text" ref="input_msg" name="chat-input" id="chat-input" className="chat-input" placeholder="Input message..."/>
                     </div>
                     <div className="chat-btn-box">
                         <button className="chat-btn" id="chat-btn" type="submit" >Send</button>
